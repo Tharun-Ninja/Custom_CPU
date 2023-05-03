@@ -156,5 +156,7 @@ if __name__ == "__main__":
     current_ins, check = create_ins_bits(['mov', 'R22', '$10'], "B")
     print(current_ins, check)
     print("hihsf")
+
+    print("checking.... ")
     
         
