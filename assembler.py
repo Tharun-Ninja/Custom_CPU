@@ -129,11 +129,5 @@ if __name__ == "__main__":
                 ins_type = get_type(line)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
                 machine_code.append(convert_bits(line, ins_type))
                 
-
-    # print(f"Total lines: {program_counter}")
-    
-    current_ins, check = create_ins_bits(['mov', 'R22', '$10'], "B")
-    print(current_ins, check)
-    print("hihsf")
-    
+            program_counter += 1
         
