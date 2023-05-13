@@ -56,11 +56,19 @@ instructions = {
     }
 
 def get_register_address(reg):
-    global registers
-    if reg in registers:
+    global is_flag
+    if reg == "FLAGS" and is_flag:
+        is_flag = 0
         return registers[reg]
+        
+    elif reg != "FLAGS":
+        if reg in registers:
+            return registers[reg]
+        else:
+            print_error('Register not Found')
+            exit()
     else:
-        print_error('Register not Found')
+        print_error('Illegal use of FLAGS register')
         exit()
 
 def is_reg(register):
@@ -126,11 +134,17 @@ def convert_bits(ins, ins_type):
         bit_ins = f"{get_ins_opcode(ins[0], ins_type)}{'0'*2}{get_register_address(ins[1])}{get_register_address(ins[2])}{get_register_address(ins[3])}\n"
     elif(ins_type == "B"):
         bit_ins = f"{get_ins_opcode(ins[0], ins_type)}{'0'*1}{get_register_address(ins[1])}{int_bits(ins[2][1:])}\n"   
+    elif(ins_type == "C"):
+        if ins[2] == "FLAGS":
+            is_flag = 1
+        bit_ins = f"{get_ins_opcode(ins[0], ins_type)}{'0'*5}{get_register_address(ins[1])}{get_register_address(ins[2])}\n"
         
     return bit_ins
 
-
+assembly_code = []
 machine_code=[]
+
+is_flag = 0
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
@@ -143,15 +157,20 @@ if __name__ == "__main__":
         print_error("File not found")
         exit(1)
 
+    with open(filename) as f:
+        for line in f:
+            if line.strip('\n') != '':
+                assembly_code.append(line.strip('\n'))
+        
+        
     program_counter = 0
     current_ins = ""
     
-    with open(filename) as f:
-        for line in f:
-            line = line.strip().split(' ')
-            if line[0] != "var":
-                ins_type = get_type(line)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
-                machine_code.append(convert_bits(line, ins_type))
+    for line in assembly_code:
+        line = line.strip().split(' ')
+        if line[0] != "var":
+            ins_type = get_type(line)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+            machine_code.append(convert_bits(line, ins_type))
                 
             program_counter += 1
         
