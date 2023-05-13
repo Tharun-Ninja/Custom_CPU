@@ -99,14 +99,38 @@ def get_type(ins):
     else:
         # Throw error
         pass
+def int_bits(data):
+    """converts Imm value to 7 bits
+
+    Args:
+        data (int): Imm value
+
+    Returns:
+        string: bits of that integer
+    """
+    try:
+        data = int(data)
+    except:
+        print_error("General Syntax Error")
+        exit()
         
-def create_ins_bits(ins, ins_type):
+    if(data >= 0 and data <= 127):  
+        return f'{data:07b}'
+    else:
+        print_error("Illegal Immediate values (more than 7 bits)")
+        exit()
+
+def convert_bits(ins, ins_type):
     bit_ins = ""
     if(ins_type == "A"):
         bit_ins = f"{get_ins_opcode(ins[0], ins_type)}{'0'*2}{get_register_address(ins[1])}{get_register_address(ins[2])}{get_register_address(ins[3])}\n"
+    elif(ins_type == "B"):
+        bit_ins = f"{get_ins_opcode(ins[0], ins_type)}{'0'*1}{get_register_address(ins[1])}{int_bits(ins[2][1:])}\n"   
         
-        
+    return bit_ins
 
+
+machine_code=[]
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
