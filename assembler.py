@@ -80,6 +80,13 @@ def get_ins_opcode(ins, ins_type):
     else:
         print_error("Instruction not Found")
         exit()
+        
+def is_mem(var):
+    if var[0].isalpha():
+        return 1
+    else:
+        print_error("General Syntax Error")
+        exit()
 
 def is_var_present(var):
     if var in variables:
@@ -136,8 +143,10 @@ def get_type(ins):
             if get_ins_opcode(ins[0], ins_type):
                 return "C"
             
-        elif 1:
-            return "D"
+        elif is_mem(ins[-1]):
+            ins_type = "D"
+            if get_ins_opcode(ins[0], ins_type):
+                return "D"
         
         else:
             print_error("General Syntax Error")
