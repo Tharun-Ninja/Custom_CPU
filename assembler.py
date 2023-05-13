@@ -235,10 +235,19 @@ if __name__ == "__main__":
             var_check = 1
             var_addr = len(assembly_code) - var_counter
             assign_variables(variables_list,var_addr)
+            
+        if line[0] == "hlt":
+            hlt_check = 1
+            if program_counter != len(assembly_code) - 1:
+                print_error("hlt not being used as the last instruction")
+                exit()
                              
         if line[0] != "var":
             ins_type = get_type(line)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
             machine_code.append(convert_bits(line, ins_type))
                 
             program_counter += 1
-        
+            
+        if hlt_check != 1:
+            print_error("Missing hlt instruction")                                                                                                                                                                                                                                                                                                                                                                                                  
+            exit()        
