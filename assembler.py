@@ -81,7 +81,31 @@ def get_ins_opcode(ins, ins_type):
         print_error("Instruction not Found")
         exit()
 
-
+def is_var_present(var):
+    if var in variables:
+        return 1
+    else:
+        return 0
+    
+def check_var(ins, var_check):
+    global var_counter, variables_list
+    
+    if(var_check == 1):
+        print_error("Variables not declared at the beginning")
+        exit()
+        
+    if ins[0] == "var" and len(ins) == 2:
+        if is_var_present(ins[0]):
+            print_error("Duplicate variable")
+            exit()
+        else:
+            variables_list.append(ins[1])
+            var_counter += 1
+            
+def assign_variables(variables_list, var_addr):
+    for x in variables_list:
+        variables[x] = int_bits(var_addr)
+        var_addr += 1
 
 def get_type(ins):
     if len(ins) == 1:
@@ -143,6 +167,9 @@ def convert_bits(ins, ins_type):
 
 assembly_code = []
 machine_code=[]
+
+variables = {}
+variables_list = []
 
 is_flag = 0
 
