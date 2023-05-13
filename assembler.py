@@ -20,21 +20,7 @@ registers = {
         "FLAGS": "111"
     }
 
-
-def get_register_address(reg):
-    global registers
-    if reg in registers:
-        return registers[reg], 0
-    else:
-        print_error('Register not Found')
-        return "", 1
-
-def is_reg(register):
-    return 1 if register[reg] else 0
-    
-def get_ins_opcode(ins, ins_type):
-    print(ins)
-    instructions = {
+instructions = {
         "A": {
             "add": "00000",
             "sub": "00001",
@@ -68,12 +54,24 @@ def get_ins_opcode(ins, ins_type):
             "hlt": "11010"
         }
     }
+
+def get_register_address(reg):
+    global registers
+    if reg in registers:
+        return registers[reg]
+    else:
+        print_error('Register not Found')
+        exit()
+
+def is_reg(register):
+    return 1 if register in registers else 0
     
+def get_ins_opcode(ins, ins_type):    
     if ins_type in instructions and ins in instructions[ins_type]:
-        return instructions[ins_type][ins] , 0
+        return instructions[ins_type][ins]
     else:
         print_error("Instruction not Found")
-        return "" , 1
+        exit()
 
 
 
@@ -101,29 +99,11 @@ def get_type(ins):
     else:
         # Throw error
         pass
-    
+        
 def create_ins_bits(ins, ins_type):
     bit_ins = ""
-    check = 0
-    if ins_type == "A":
-        print('hi')
-        try:
-            print(ins[0], ins_type)
-            bit_ins, check = get_ins_opcode(ins[0], ins_type)
-            print(bit_ins, check)
-            return bit_ins, check
-        except:
-            exit()
-    elif ins_type == "B":
-        print('hi')
-        try:
-            print(ins[0], ins_type)
-            bit_ins, check = get_register_address(ins[1])
-            print(bit_ins, check)
-            return bit_ins, check
-        except:
-            pass
-            # exit()
+    if(ins_type == "A"):
+        bit_ins = f"{get_ins_opcode(ins[0], ins_type)}{'0'*2}{get_register_address(ins[1])}{get_register_address(ins[2])}{get_register_address(ins[3])}\n"
         
         
 
@@ -141,20 +121,13 @@ if __name__ == "__main__":
 
     program_counter = 0
     current_ins = ""
-    # with open(filename) as f:
-    #     for line in f:
-    #         line = line.strip().split(' ')
-    #         program_counter += 1
-    #         print(line)
-    #         if line[0] != 'var' and line[0] != '':
-    #             ins_type = get_type(line)
-    #             current_ins = create_ins_bits(line, ins_type)
+    
+    with open(filename) as f:
+        for line in f:
+            line = line.strip().split(' ')
+            if line[0] != "var":
+                ins_type = get_type(line)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+                machine_code.append(convert_bits(line, ins_type))
                 
-
-    # print(f"Total lines: {program_counter}")
-    
-    current_ins, check = create_ins_bits(['mov', 'R22', '$10'], "B")
-    print(current_ins, check)
-    print("hihsf")
-    
+            program_counter += 1
         
