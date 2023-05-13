@@ -109,28 +109,52 @@ def assign_variables(variables_list, var_addr):
 
 def get_type(ins):
     if len(ins) == 1:
-        return "F"
+        ins_type = "F"
+        if get_ins_opcode(ins[0], ins_type):
+            return "F"
+        else:
+            print_error("General Syntax Error")
+            exit()
+
     
     elif len(ins) == 2:
-        return "E"
+        ins_type = "E"
+        if get_ins_opcode(ins[0], ins_type):
+            return "E"
+        else:
+            print_error("General Syntax Error")
+            exit()
     
     elif len(ins) == 3:
         if ins[-1][0] == "$":
-            return "B"
+            ins_type = "B"
+            if get_ins_opcode(ins[0], ins_type):
+                return "B"
+            
         elif is_reg(ins[-1]):
-            return "C"
+            ins_type = "C"
+            if get_ins_opcode(ins[0], ins_type):
+                return "C"
+            
         elif 1:
-            return "D" # need to check mem type 
+            return "D"
+        
         else:
-            # Throw error
-            pass
+            print_error("General Syntax Error")
+            exit()
         
     elif len(ins) == 4:
-        return "A"
+        ins_type = "A"
+        if get_ins_opcode(ins[0], ins_type):
+            return "A"
+        else:
+            print_error("General Syntax Error")
+            exit()
     
     else:
-        # Throw error
-        pass
+        print_error("General Syntax Error")
+        exit()
+
 def int_bits(data):
     """converts Imm value to 7 bits
 
@@ -172,6 +196,7 @@ variables = {}
 variables_list = []
 
 is_flag = 0
+var_counter=0
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
@@ -194,7 +219,14 @@ if __name__ == "__main__":
     current_ins = ""
     
     for line in assembly_code:
-        line = line.strip().split(' ')
+        line = line.split()
+        if line[0] == "var":
+            check_var(line, var_check)
+        else:
+            var_check = 1
+            var_addr = len(assembly_code) - var_counter
+            assign_variables(variables_list,var_addr)
+                             
         if line[0] != "var":
             ins_type = get_type(line)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
             machine_code.append(convert_bits(line, ins_type))
