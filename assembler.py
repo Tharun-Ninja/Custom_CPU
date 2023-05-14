@@ -340,15 +340,19 @@ if __name__ == "__main__":
     filename = sys.argv[1]
     
     # error if filename not present
-    if filename not in os.listdir():
-        print_error("File not found")
-        exit()
+    # if filename not in os.listdir():
+    #     print("Error: File not found")
+    #     exit()
 
     # Store all the lines in assembly code
-    with open(filename) as f:
-        for line in f:
-            if line.strip('\n') != '':
-                assembly_code.append(line.strip('\n'))
+    try:
+        with open(filename) as f:
+            for line in f:
+                if line.strip('\n') != '':
+                    assembly_code.append(line.strip('\n'))
+    except:
+        print_error("File not found")
+        exit()
         
     check_labels()   
     
@@ -391,3 +395,5 @@ if __name__ == "__main__":
     
     with open('machine_code.txt', 'w') as w:
         w.writelines(machine_code)
+        with open('error.txt', 'w') as e:
+            pass
