@@ -195,18 +195,69 @@ def convert_bits(ins, ins_type):
         if ins[2] == "FLAGS":
             is_flag = 1
         bit_ins = f"{get_ins_opcode(ins[0], ins_type)}{'0'*5}{get_register_address(ins[1])}{get_register_address(ins[2])}\n"
-        
+    elif(ins_type == "D"):
+        bit_ins = f"{get_ins_opcode(ins[0], ins_type)}{'0'*1}{get_register_address(ins[1])}{get_mem_addr(ins[2], ins_type)}\n"
+    elif(ins_type == "E"):
+        bit_ins = f"{get_ins_opcode(ins[0], ins_type)}{'0'*4}{get_mem_addr(ins[1], ins_type)}\n"
+    elif(ins_type == "F"):
+        bit_ins = f"{get_ins_opcode(ins[0], ins_type)}{'0'*11}"   
     return bit_ins
 
+def check_labels():
+    global assembly_code
+    label_counter = 0
+    total_var = 0
+    
+    for ins in assembly_code:
+        ins = ins.split(' ')
+        if ins[0][-1] == ":":
+            if len(ins[0].split(' ')) == 1:
+                labels[ins[0][:-1]] = int_bits(label_counter - total_var)
+                assembly_code[label_counter] = assembly_code[label_counter].replace(ins[0], "")
+                
+            else:
+                print_error("label not properly spaced")
+                
+        if ins[0] == "var":
+            total_var += 1
+            
+        label_counter += 1
+
+def is_label_present(var):
+    if var in labels:
+        return 1
+    else:
+        return 0 
+def get_mem_addr(var, ins_type):
+    if ins_type == "D":
+        if is_label_present(var):
+            print_error("Misuse of labels as variables")
+            exit()
+        if is_var_present(var):
+            return variables[var]
+        else:
+            print_error("Use of undefined variables")
+            exit()
+    
+    elif ins_type == "E":
+        if is_var_present(var):
+            print_error("Misuse of variables as labels")
+            exit()
+        if is_label_present(var):
+            return labels[var]
+        else:
+            print_error("Use of Undefined labels")
+            exit()          
 assembly_code = []
 machine_code=[]
 
 variables = {}
 variables_list = []
-
+labels = {}
 is_flag = 0
 var_counter=0
-
+hlt_check = 0
+program_counter = 0
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print_help()
@@ -223,9 +274,8 @@ if __name__ == "__main__":
             if line.strip('\n') != '':
                 assembly_code.append(line.strip('\n'))
         
-        
-    program_counter = 0
-    current_ins = ""
+    check_labels()   
+    
     
     for line in assembly_code:
         line = line.split()
