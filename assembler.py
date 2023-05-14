@@ -7,8 +7,12 @@ def print_help():
     print("Usage: python3 assembler.py <text_file>")
     
 def print_error(error):
-    print(f"Error: {error}")
+    with open('error.txt', 'w') as e:
+        e.write(f"Error Line {program_counter}: {error}\n")
     
+    print(f"Error Line {program_counter}: {error}")
+
+# list of registers
 registers = {
         "R0": "000",
         "R1": "001",
@@ -20,6 +24,7 @@ registers = {
         "FLAGS": "111"
     }
 
+# list of opcode 
 instructions = {
         "A": {
             "add": "00000",
@@ -55,8 +60,19 @@ instructions = {
         }
     }
 
+# return the addr of register
 def get_register_address(reg):
+    """return the address of the register
+
+    Args:
+        reg (string): register name
+
+    Returns:
+        string: string of bits
+    """
+    
     global is_flag
+    
     if reg == "FLAGS" and is_flag:
         is_flag = 0
         return registers[reg]
@@ -74,7 +90,18 @@ def get_register_address(reg):
 def is_reg(register):
     return 1 if register in registers else 0
     
+# get the opcode of the instruction
 def get_ins_opcode(ins, ins_type):    
+    """returns the opcode of the instructions to the corresponding
+    type
+
+    Args:
+        ins (string): first word of the instruction
+        ins_type (string): type of that instruction
+
+    Returns:
+        string: opcode of that instruction
+    """
     if ins_type in instructions and ins in instructions[ins_type]:
         return instructions[ins_type][ins]
     else:
@@ -82,6 +109,14 @@ def get_ins_opcode(ins, ins_type):
         exit()
         
 def is_mem(var):
+    """checks variable syntax
+
+    Args:
+        addr (string): variable 
+
+    Returns:
+        int: 1 if variable syntax is good else error
+    """
     if var[0].isalpha():
         return 1
     else:
@@ -95,6 +130,12 @@ def is_var_present(var):
         return 0
     
 def check_var(ins, var_check):
+    """Checks if the variable is proper and adds it to the dict
+
+    Args:
+        ins (string): list of ins
+        var_check (int): is the variable acceptable
+    """
     global var_counter, variables_list
     
     if(var_check == 1):
@@ -113,8 +154,37 @@ def assign_variables(variables_list, var_addr):
     for x in variables_list:
         variables[x] = int_bits(var_addr)
         var_addr += 1
+        
+def get_mem_addr(var, ins_type):
+    if ins_type == "D":
+        if is_label_present(var):
+            print_error("Misuse of labels as variables")
+            exit()
+        if is_var_present(var):
+            return variables[var]
+        else:
+            print_error("Use of undefined variables")
+            exit()
+    
+    elif ins_type == "E":
+        if is_var_present(var):
+            print_error("Misuse of variables as labels")
+            exit()
+        if is_label_present(var):
+            return labels[var]
+        else:
+            print_error("Use of Undefined labels")
+            exit()  
 
 def get_type(ins):
+    """returns the type of instruction
+
+    Args:
+        ins (list): list of the ins
+
+    Returns:
+        string: type of instruction
+    """
     if len(ins) == 1:
         ins_type = "F"
         if get_ins_opcode(ins[0], ins_type):
@@ -186,6 +256,16 @@ def int_bits(data):
         exit()
 
 def convert_bits(ins, ins_type):
+    """convert the instruction line to bits
+
+    Args:
+        ins (list): list of the instructions
+        ins_type (string): type of the instruction
+
+    Returns:
+        string: string of bits of the instruction
+    """
+    global is_flag
     bit_ins = ""
     if(ins_type == "A"):
         bit_ins = f"{get_ins_opcode(ins[0], ins_type)}{'0'*2}{get_register_address(ins[1])}{get_register_address(ins[2])}{get_register_address(ins[3])}\n"
@@ -204,6 +284,10 @@ def convert_bits(ins, ins_type):
     return bit_ins
 
 def check_labels():
+    """Finds the labels and 
+    allocates memory address to the labels in the
+    dictionary
+    """
     global assembly_code
     label_counter = 0
     total_var = 0
@@ -228,47 +312,39 @@ def is_label_present(var):
         return 1
     else:
         return 0 
-def get_mem_addr(var, ins_type):
-    if ins_type == "D":
-        if is_label_present(var):
-            print_error("Misuse of labels as variables")
-            exit()
-        if is_var_present(var):
-            return variables[var]
-        else:
-            print_error("Use of undefined variables")
-            exit()
     
-    elif ins_type == "E":
-        if is_var_present(var):
-            print_error("Misuse of variables as labels")
-            exit()
-        if is_label_present(var):
-            return labels[var]
-        else:
-            print_error("Use of Undefined labels")
-            exit()          
+# Stores assembly and machine code
 assembly_code = []
 machine_code=[]
 
+# Stores the list of variables and labels
 variables = {}
 variables_list = []
 labels = {}
+
+# checkers for finding duplicate variable and hlt ins
 is_flag = 0
-var_counter=0
+var_counter = 0 
 hlt_check = 0
+var_check = 0
+
+# Tracks the current executing line
 program_counter = 0
+
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print_help()
-        exit(1)
+        exit()
 
+    # Get filename
     filename = sys.argv[1]
     
+    # error if filename not present
     if filename not in os.listdir():
         print_error("File not found")
-        exit(1)
+        exit()
 
+    # Store all the lines in assembly code
     with open(filename) as f:
         for line in f:
             if line.strip('\n') != '':
@@ -278,7 +354,13 @@ if __name__ == "__main__":
     
     
     for line in assembly_code:
+        
         line = line.split()
+        
+        if line == []:
+            program_counter -= 1
+            continue
+        
         if line[0] == "var":
             check_var(line, var_check)
         else:
@@ -296,8 +378,16 @@ if __name__ == "__main__":
             ins_type = get_type(line)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
             machine_code.append(convert_bits(line, ins_type))
                 
-            program_counter += 1
+        program_counter += 1
             
-        if hlt_check != 1:
-            print_error("Missing hlt instruction")                                                                                                                                                                                                                                                                                                                                                                                                  
-            exit()        
+    # check missing hlt instruction
+    if hlt_check != 1:
+        print_error("Missing hlt instruction")                                                                                                                                                                                                                                                                                                                                                                                                  
+        exit()        
+        
+    if len(machine_code) > 128:
+        print_error("Assembler can only work with 128 lines")
+        exit()
+    
+    with open('machine_code.txt', 'w') as w:
+        w.writelines(machine_code)
