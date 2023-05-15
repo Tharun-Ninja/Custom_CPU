@@ -1,0 +1,7 @@
+label: mov R1 $5
+mov R2 55
+add R1 R2 R1
+cmp R1 R2 R3
+sub R1 R1 R2
+je label1
+hlt
