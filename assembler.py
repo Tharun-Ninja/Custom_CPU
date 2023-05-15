@@ -101,7 +101,6 @@ def get_register_address(reg):
     """
 
     global is_flag
-    print(is_flag)
     if reg == "FLAGS" and is_flag:
         is_flag = 0
         return registers[reg]
