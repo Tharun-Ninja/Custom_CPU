@@ -366,7 +366,7 @@ if __name__ == "__main__":
     # except:
     #     print_error("File not found")
     #     exit()
-    print(sys.stdin)
+
     for ins in sys.stdin:
         assembly_code.append(ins)
 
