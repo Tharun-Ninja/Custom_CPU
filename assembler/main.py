@@ -4,7 +4,7 @@ import os
 
 
 def print_help():
-    print("Usage: python3 assembler.py <text_file>")
+    print("Usage: python3 main.py <text_file>")
 
 
 def print_error(error):
@@ -347,22 +347,28 @@ var_check = 0
 program_counter = 0
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print_help()
-        exit()
+    # print(sys.argv)
+    # if len(sys.argv) != 2:
+    #     print_help()
+    #     exit()
+    
+    
 
     # Get filename
-    filename = sys.argv[1]
+    # filename = sys.argv[1]
 
     # Store all the lines in assembly code
-    try:
-        with open(filename) as f:
-            for line in f:
-                if line.strip('\n') != '':
-                    assembly_code.append(line.strip('\n'))
-    except:
-        print_error("File not found")
-        exit()
+    # try:
+    #     with open(filename) as f:
+    #         for line in f:
+    #             if line.strip('\n') != '':
+    #                 assembly_code.append(line.strip('\n'))
+    # except:
+    #     print_error("File not found")
+    #     exit()
+    print(sys.stdin)
+    for ins in sys.stdin:
+        assembly_code.append(ins)
 
     check_labels()
 
@@ -403,7 +409,10 @@ if __name__ == "__main__":
         print_error("Assembler can only work with 128 lines")
         exit()
 
-    with open('machine_code.txt', 'w') as w:
-        w.writelines(machine_code)
-        with open('error.txt', 'w') as e:
-            pass
+    # with open('machine_code.txt', 'w') as w:
+    #     w.writelines(machine_code)
+    #     with open('error.txt', 'w') as e:
+    #         pass
+        
+    for lin in machine_code:
+        sys.stdout.write(lin)
