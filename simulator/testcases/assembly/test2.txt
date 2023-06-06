@@ -1,0 +1,9 @@
+var X
+mov R1 $10
+mov R2 $4
+inc R1 $9
+cmn R2 $5
+jgt l1
+l1: dec R1 $10
+swp R1 X
+hlt
