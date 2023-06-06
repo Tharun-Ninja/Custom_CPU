@@ -34,12 +34,19 @@ instructions = {
         "mul": "00110",
         "xor": "01010",
         "or": "01011",
-        "and": "01100"
+        "and": "01100",
+        "addf": "10000",
+        "subf": "10001",
+        "rsb": "10100"
     },
     "B": {
         "mov": "00010",
         "rs": "01000",
-        "ls": "01001"
+        "ls": "01001",
+        "movf": "10010",
+        "dec": "10110",
+        "inc": "10011",
+        "cmn": "10111" 
     },
     "C": {
         "mov": "00011",
@@ -49,7 +56,8 @@ instructions = {
     },
     "D": {
         "ld": "00100",
-        "st": "00101"
+        "st": "00101",
+        "swp": "10101"
     },
     "E": {
         "jmp": "01111",
@@ -258,6 +266,34 @@ def int_bits(data):
     else:
         print_error("Illegal Immediate values (more than 7 bits)")
         exit()
+        
+def float_bits(data):
+    number = int(data.split('.')[0])
+    fraction = float(data) - number
+     
+    binary = f"{bin(number).replace('0b', '')}"
+    e = len(binary) -1
+    
+    binary = binary[:1] + "." + binary[1:len(binary)]
+    k_bits = 5 - e
+    
+    while (k_bits) :
+        fraction *= 2
+        fract_bit = int(fraction)
+ 
+        if (fract_bit == 1) :
+            fraction -= fract_bit
+            binary += '1'
+        else :
+            binary += '0'
+ 
+        k_bits -= 1
+        
+    e = bin(e+4).replace('0b', '').rjust(3, "0")
+    m = str(binary[2:])
+    
+    ieee = e + m
+    return ieee
 
 
 def convert_bits(ins, ins_type):
@@ -280,7 +316,11 @@ def convert_bits(ins, ins_type):
             print_error(f"\"{ins[2]}\" in not defined")
             exit()
             
-        bit_ins = f"{get_ins_opcode(ins[0], ins_type)}{'0'*1}{get_register_address(ins[1])}{int_bits(ins[2][1:])}\n"
+        if ins[0] == "movf":
+            bit_ins = f"{get_ins_opcode(ins[0], ins_type)}{get_register_address(ins[1])}{float_bits(ins[2][1:])}\n"
+        else:
+            bit_ins = f"{get_ins_opcode(ins[0], ins_type)}{'0'*1}{get_register_address(ins[1])}{int_bits(ins[2][1:])}\n"
+        
     elif (ins_type == "C"):
         if ins[2] == "FLAGS":
             is_flag = 1
@@ -348,27 +388,27 @@ program_counter = 0
 
 if __name__ == "__main__":
     # print(sys.argv)
-    # if len(sys.argv) != 2:
-    #     print_help()
-    #     exit()
+    if len(sys.argv) != 2:
+        print_help()
+        exit()
     
     
 
     # Get filename
-    # filename = sys.argv[1]
+    filename = sys.argv[1]
 
     # Store all the lines in assembly code
-    # try:
-    #     with open(filename) as f:
-    #         for line in f:
-    #             if line.strip('\n') != '':
-    #                 assembly_code.append(line.strip('\n'))
-    # except:
-    #     print_error("File not found")
-    #     exit()
+    try:
+        with open(filename) as f:
+            for line in f:
+                if line.strip('\n') != '':
+                    assembly_code.append(line.strip('\n'))
+    except:
+        print_error("File not found")
+        exit()
 
-    for ins in sys.stdin:
-        assembly_code.append(ins)
+    # for ins in sys.stdin:
+    #     assembly_code.append(ins)
 
     check_labels()
 
@@ -409,10 +449,10 @@ if __name__ == "__main__":
         print_error("Assembler can only work with 128 lines")
         exit()
 
-    # with open('machine_code.txt', 'w') as w:
-    #     w.writelines(machine_code)
-    #     with open('error.txt', 'w') as e:
-    #         pass
+    with open('machine_code.txt', 'w') as w:
+        w.writelines(machine_code)
+        with open('error.txt', 'w') as e:
+            pass
         
-    for lin in machine_code:
-        sys.stdout.write(lin)
+    # for lin in machine_code:
+    #     sys.stdout.write(lin)
