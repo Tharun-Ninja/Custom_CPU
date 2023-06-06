@@ -80,3 +80,47 @@ class Memory:
             for ins in self.instructions[types]:
                 if self.instructions[types][ins] == opcode:
                     return types, ins
+
+class RegisterFile:
+    register_memory = ["0"*16 for _ in range(8)]
+    
+    regs = {
+    "R0": "000",
+    "R1": "001",
+    "R2": "010",
+    "R3": "011",
+    "R4": "100",
+    "R5": "101",
+    "R6": "110",
+    "FLAGS": "111"
+    }
+    
+    def dump(self):
+        # print(self.register_memory)
+        for d in self.register_memory:
+            # print(d, end=" ")
+            # f.write(d + " ")
+            sys.stdout.write(f"{d} ")
+            
+        # print()
+        # f.write("\n")
+        sys.stdout.write(f"\n")
+        
+        
+    def reg_write(self, reg, data):
+        self.register_memory[reg] = data
+
+    def flags_reset(self):
+        self.reg_write(7, "0"*16)    
+    
+class ProgramCounter:
+    def _init_(self, counter):
+        self.counter = counter
+        
+    def dump(self):
+        # print(f"{self.counter:07b}", end=" ")
+        sys.stdout.write(f"{self.counter:07b} ")
+        # f.write(f"{self.counter:07b}" + " ")
+        
+    def update(self, counter):
+        self.counter = counter
