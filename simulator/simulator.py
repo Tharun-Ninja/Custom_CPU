@@ -239,3 +239,49 @@ class ExecutionEngine:
                     else:
                         RF.reg_write(self.bin_int(instruction[7:10]), self.dec_ieee(reg1))
                     return False, PC.counter + 1
+
+        elif type_ins == "B":
+            if ins != "movf":
+                reg1 = self.bin_int(RF.register_memory[self.bin_int(instruction[6:9])])
+                Imm = self.bin_int(instruction[9::])
+                
+                if ins == 'mov':
+                    reg1 = Imm
+                elif ins == 'rs':
+                    reg1 = reg1 >> Imm
+                elif ins == 'ls':
+                    reg1 = reg1 << Imm
+                elif ins == 'inc':
+                    reg1 = reg1 + Imm
+                    if self.is_overflow(reg1):
+                        reg1 = 0
+                        RF.reg_write(self.bin_int('111'), self.int_bin(8))
+                    else:
+                        RF.reg_write(self.bin_int(instruction[6:9]), self.int_bin(reg1))
+                    return False, PC.counter + 1
+                
+                elif ins == 'dec':
+                    if Imm > reg1:
+                        RF.reg_write(self.bin_int('111'), self.int_bin(8))
+                    else:
+                        reg1 = reg1 - Imm
+                        RF.reg_write(self.bin_int(instruction[6:9]), self.int_bin(reg1))
+                    return False, PC.counter + 1
+                
+                elif ins == 'cmn':
+                    if reg1 < Imm:
+                        RF.reg_write(self.bin_int('111'), self.int_bin(4)) #less than
+                    elif reg1 > Imm:
+                        RF.reg_write(self.bin_int('111'), self.int_bin(2)) 
+                    elif reg1 == Imm:
+                        RF.reg_write(self.bin_int('111'), self.int_bin(1))
+                        
+                    return False, PC.counter + 1
+                
+                    
+                RF.reg_write(self.bin_int(instruction[6:9]), self.int_bin(reg1))
+                return False, PC.counter + 1
+            
+            elif ins == 'movf':
+                RF.reg_write(self.bin_int(instruction[5:8]), f"{'0'*8}{instruction[8::]}")
+                return False, PC.counter + 1        
