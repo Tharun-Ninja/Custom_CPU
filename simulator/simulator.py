@@ -124,3 +124,118 @@ class ProgramCounter:
         
     def update(self, counter):
         self.counter = counter
+        
+        
+class ExecutionEngine:
+    def bin_int(self, binary):
+        return int(binary, 2)
+    
+    def int_bin(self, data):
+            return f'{data:016b}'
+        
+    def ieee_fraction(self,data):
+        e = data[:3]
+        m = data[3:8]
+        
+        e = int(e, 2) - 4
+        binary = f"1{m}"
+        integer = int(binary[:e+1], 2)
+        fraction = int(binary[e+1:], 2) / (2 ** len(binary[e+1:]))
+        
+        number = integer+fraction
+        return number    
+
+    def dec_ieee(self,data):
+        number = int(data.split('.')[0])
+        fraction = float(data) - number
+        
+        binary = f"{bin(number).replace('0b', '')}"
+        e = len(binary) -1
+        
+        binary = binary[:1] + "." + binary[1:len(binary)]
+        k_bits = 5 - e
+        
+        while (k_bits) :
+            fraction *= 2
+            fract_bit = int(fraction)
+    
+            if (fract_bit == 1) :
+                fraction -= fract_bit
+                binary += '1'
+            else :
+                binary += '0'
+    
+            k_bits -= 1
+            
+        e = bin(e+4).replace('0b','').rjust(3, "0")
+        m = str(binary[2:])
+        
+        ieee = e + m
+        return ieee
+    
+    def is_overflow(self,val):
+        return 1 if (val > (2**16 - 1)) else 0
+
+    
+    def execute(self, instruction):
+        opcode = instruction[0:5]
+        type_ins, ins = Opcodes().getIns(opcode)
+        
+        if type_ins == "A":
+            if ins != "addf" and ins != "subf":
+                reg1 = self.bin_int(RF.register_memory[self.bin_int(instruction[7:10])])
+                reg2 = self.bin_int(RF.register_memory[self.bin_int(instruction[10:13])])
+                reg3 = self.bin_int(RF.register_memory[self.bin_int(instruction[13:16])])
+                
+                # print(reg1, reg2, reg3)
+                if ins == "add":
+                    reg1 = reg2 + reg3
+                elif ins == 'sub':
+                    reg1 = reg2 - reg3
+                    if reg3 > reg2:
+                        RF.reg_write(self.bin_int('111'), self.int_bin(8))
+                    else:
+                        RF.reg_write(self.bin_int(instruction[7:10]), self.int_bin(reg1))
+                        
+                    return False, PC.counter + 1
+                elif ins == 'mul':
+                    reg1 = reg2 * reg3
+                elif ins == 'xor':
+                    reg1 = reg2 ^ reg3
+                elif ins == 'or':
+                    reg1 = reg2 | reg3
+                elif ins == 'and':
+                    reg1 = reg2 & reg3  
+                elif ins == 'rsb':
+                    reg1 = reg3 - reg2
+                    
+                if self.is_overflow(reg1):
+                    reg1 = 0
+                    RF.reg_write(self.bin_int('111'), self.int_bin(8))
+                else:    
+                    RF.reg_write(self.bin_int(instruction[7:10]), self.int_bin(reg1))
+            
+                return False, PC.counter + 1
+                     
+            else:
+                reg2 = self.ieee_fraction(RF.register_memory[self.bin_int(instruction[10:13])][8:])
+                reg3 = self.ieee_fraction(RF.register_memory[self.bin_int(instruction[13:16])][8:])
+                
+                if ins == "addf":
+                    reg1 = reg2 + reg3
+                    if self.is_overflow(reg1):
+                        reg1 = 0
+                        RF.reg_write(self.bin_int('111'), self.int_bin(8))
+                    else:
+                        RF.reg_write(self.bin_int(instruction[7:10]), f"{'0'*8}{self.dec_ieee(str(reg1))}")
+                    
+                    return False, PC.counter + 1
+                
+                elif ins == "subf":
+                    reg1 = reg2 - reg3
+                    
+                    if reg3 > reg2:
+                        RF.reg_write(self.bin_int('111'), self.int_bin(8))
+                    else:
+                        RF.reg_write(self.bin_int(instruction[7:10]), self.dec_ieee(reg1))
+                    return False, PC.counter + 1
