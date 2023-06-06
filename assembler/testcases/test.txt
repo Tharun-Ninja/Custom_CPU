@@ -1,9 +1,5 @@
-var X
-mov R1 $10
-mov R2 $4
-inc R1 $9
-cmn R2 $5
-jgt l1
-l1: dec R1 $10
-swp R1 X
+movf R1 $1.25
+movf R3 $2.5
+addf R0 R1 R3
+subf R2 R3 R1
 hlt
