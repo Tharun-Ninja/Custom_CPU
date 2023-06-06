@@ -284,4 +284,43 @@ class ExecutionEngine:
             
             elif ins == 'movf':
                 RF.reg_write(self.bin_int(instruction[5:8]), f"{'0'*8}{instruction[8::]}")
-                return False, PC.counter + 1        
+                return False, PC.counter + 1
+        
+        elif type_ins == "C":
+            reg1 = self.bin_int(RF.register_memory[self.bin_int(instruction[10:13])])
+            reg2 = self.bin_int(RF.register_memory[self.bin_int(instruction[13:16])])
+            
+            if ins == 'mov':
+                reg1 = reg2
+                RF.reg_write(self.bin_int(instruction[10:13]), self.int_bin(reg1))
+                if instruction[13:16] == '111':
+                    RF.reg_write(self.bin_int('111'), self.int_bin(0))
+                    
+            elif ins == 'div':
+                qoutient = int(reg1/reg2)
+                remainder = int(reg1%reg2)
+                
+                if reg2 == 0:
+                    RF.reg_write(self.bin_int('000'), self.int_bin(0))
+                    RF.reg_write(self.bin_int('001'), self.int_bin(0))
+                    
+                    RF.reg_write(self.bin_int('111'), self.int_bin(8))
+                else:
+                    RF.reg_write(self.bin_int('000'), self.int_bin(qoutient))
+                    RF.reg_write(self.bin_int('001'), self.int_bin(remainder))
+                    
+            elif ins == 'not':
+                reg1 = ~reg2
+                RF.reg_write(self.bin_int(instruction[10:13]), self.int_bin(reg1))
+                
+            elif ins == 'cmp':
+                if reg1 < reg2:
+                    RF.reg_write(self.bin_int('111'), self.int_bin(4)) #less than
+                elif reg1 > reg2:
+                    RF.reg_write(self.bin_int('111'), self.int_bin(2)) 
+                elif reg1 == reg2:
+                    RF.reg_write(self.bin_int('111'), self.int_bin(1))
+            
+           
+            
+            return False, PC.counter + 1        
