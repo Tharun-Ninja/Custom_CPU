@@ -377,3 +377,27 @@ class ExecutionEngine:
             
         elif type_ins == "F":
             return True, PC.counter
+        
+        
+def initialize(MEM):
+    MEM.initialize()
+
+
+
+MEM = Memory()
+initialize(MEM)  # Load memory from stdin
+EE = ExecutionEngine()
+RF = RegisterFile()
+PC = ProgramCounter(0) # Start from the first instruction
+
+halted = False 
+
+while not halted:
+    Instruction = MEM.fetchData(PC)  # Get current instruction
+    halted, new_PC = EE.execute(Instruction)  # Update RF compute new_PC
+    PC.dump()  # Print PC
+    RF.dump()  # Print RF state
+    PC.update(new_PC)  # Update PC
+    
+MEM.dump() # Print the complete memory
+# f.close()
