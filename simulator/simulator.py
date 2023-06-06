@@ -324,3 +324,56 @@ class ExecutionEngine:
            
             
             return False, PC.counter + 1        
+        
+        elif type_ins == "D":
+            reg1 = RF.register_memory[self.bin_int(instruction[6:9])]
+            addr = self.bin_int(instruction[9:16])
+            
+            if ins == 'ld':
+                RF.reg_write(self.bin_int(instruction[6:9]), MEM.mem[addr])
+                
+            elif ins == 'st':
+                MEM.mem_write(addr, reg1)
+                
+            elif ins == 'swp':
+                RF.reg_write(self.bin_int(instruction[6:9]), MEM.mem[addr])
+                MEM.mem_write(addr, reg1)
+            
+            return False, PC.counter + 1
+            
+        elif type_ins == "E":
+            Imm = self.bin_int(instruction[9:16])
+            FLAGS = self.bin_int(RF.register_memory[self.bin_int('111')])
+            
+            if ins == 'jmp':
+                RF.reg_write(self.bin_int('111'), self.int_bin(0))
+                return False, Imm
+                
+            elif ins == 'jlt':
+                if FLAGS == 4:
+                    RF.reg_write(self.bin_int('111'), self.int_bin(0))
+                    return False, Imm
+                else:
+                    RF.reg_write(self.bin_int('111'), self.int_bin(0))
+                    return False, PC.counter + 1
+                    
+            elif ins == 'jgt':
+                if FLAGS == 2:
+                    RF.reg_write(self.bin_int('111'), self.int_bin(0))
+                    return False, Imm
+                    
+                else:
+                    RF.reg_write(self.bin_int('111'), self.int_bin(0))
+                    return False, PC.counter + 1
+
+            elif ins == 'je':
+                if FLAGS == 1:
+                    RF.reg_write(self.bin_int('111'), self.int_bin(0))
+                    return False, Imm 
+                    
+                else:
+                    RF.reg_write(self.bin_int('111'), self.int_bin(0))
+                    return False, PC.counter + 1
+            
+        elif type_ins == "F":
+            return True, PC.counter
