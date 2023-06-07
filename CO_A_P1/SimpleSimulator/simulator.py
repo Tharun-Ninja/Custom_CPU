@@ -1,18 +1,18 @@
 #! python3
 import sys
 
-f = open('output.txt', 'w')
+# f = open('output.txt', 'w')
 
 class Memory:
     mem = []
     
     def initialize(self):
-        with open("./test.txt") as f:
-            for line in f:
-                self.mem.append(line.strip('\n'))
+    #     with open("./test.txt") as f:
+    #         for line in f:
+    #             self.mem.append(line.strip('\n'))
                 
-        # for ins in sys.stdin:
-        #     self.mem.append(ins.strip())
+        for ins in sys.stdin:
+            self.mem.append(ins.strip())
             
         if(len(self.mem) < 128):
             for i in range(len(self.mem), 128):
@@ -28,8 +28,8 @@ class Memory:
     def dump(self):
         for ins in self.mem:
             # print(ins)
-            f.write(ins + "\n")
-            # sys.stdout.write(f"{ins}\n")
+            # f.write(ins + "\n")
+            sys.stdout.write(f"{ins}\n")
             
 class Opcodes:
     instructions = {
@@ -100,11 +100,11 @@ class RegisterFile:
         # print(self.register_memory)
         for d in self.register_memory:
             # print(d, end=" ")
-            f.write(d + " ")
-            # sys.stdout.write(f"{d} ")
+            # f.write(d + " ")
+            sys.stdout.write(f"{d} ")
             
         # print()
-        f.write("\n")
+        # f.write("\n")
         sys.stdout.write(f"\n")
         
         
@@ -120,8 +120,8 @@ class ProgramCounter:
         
     def dump(self):
         # print(f"{self.counter:07b}", end=" ")
-        # sys.stdout.write(f"{self.counter:07b} ")
-        f.write(f"{self.counter:07b}" + " ")
+        sys.stdout.write(f"{self.counter:07b} ")
+        # f.write(f"{self.counter:07b}" + " ")
         
     def update(self, counter):
         self.counter = counter
@@ -361,7 +361,7 @@ class ExecutionEngine:
             elif ins == 'jgt':
                 if FLAGS == 2:
                     RF.reg_write(self.bin_int('111'), self.int_bin(0))
-                    return False, Imm  
+                    return False, Imm
                     
                 else:
                     RF.reg_write(self.bin_int('111'), self.int_bin(0))
@@ -401,4 +401,4 @@ while not halted:
     PC.update(new_PC)  # Update PC
     
 MEM.dump() # Print the complete memory
-f.close()
+# f.close()
